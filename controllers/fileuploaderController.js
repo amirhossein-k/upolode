@@ -2,6 +2,7 @@
 
 const SingleFile = require("../models/singlefile");
 const Multiplefile = require("../models/multiplefile");
+const fs = require('fs')
 
 const singleFileUpload = async (req, res, next) => {
   try {
@@ -61,6 +62,40 @@ const getallMultipleFiles = async (req, res, next) => {
   }
 };
 
+const deleteFile = async(req,res,next)=>{
+    try{
+        const {fileName}= req.body
+        const file =  await SingleFile.find()
+       
+
+        let filter = file.filter(item=> item.fileName === fileName)
+        
+        let filterpath = null
+        filter.forEach(item=>  {
+            filterpath = item.filePath
+            
+        })
+
+        fs.unlink(filterpath,(err)=>{
+            if(err){
+                console.error(err)
+                return
+            }
+        })
+     
+
+        await SingleFile.findOneAndDelete(filter)
+        res.status(201).send(`Delete File ${filter.fileName} successfuly`)
+        
+        
+
+    } catch (erorr) {
+        res.status(400).send(erorr.message);
+      }
+}
+
+
+
 const fileSizeFormater = (bytes, decimal) => {
   if (bytes === 0) {
     return "0 Bytes";
@@ -78,4 +113,5 @@ module.exports = {
   multipleFileUpload,
   getallSingleFiles,
   getallMultipleFiles,
+  deleteFile
 };
