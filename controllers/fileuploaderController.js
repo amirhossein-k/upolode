@@ -2,7 +2,8 @@
 
 const SingleFile = require("../models/singlefile");
 const Multiplefile = require("../models/multiplefile");
-const fs = require('fs')
+const fs = require('fs');
+const { send } = require("process");
 
 const singleFileUpload = async (req, res, next) => {
   try {
@@ -62,7 +63,7 @@ const getallMultipleFiles = async (req, res, next) => {
   }
 };
 
-const deleteFile = async(req,res,next)=>{
+const deleteSingleFile = async(req,res,next)=>{
     try{
         const {fileName}= req.body
         const file =  await SingleFile.find()
@@ -94,7 +95,79 @@ const deleteFile = async(req,res,next)=>{
       }
 }
 
+const deleteMultipleFile = async(req,res,next)=>{
+  try{
+      const {title}= req.body
+      const files =  await Multiplefile.find()
+     
+      let filter = files.filter(item=> item.title === title)
+     
 
+      
+    
+      let fileTitle = null
+      filter.forEach(item=>  {
+        fileTitle = item.title
+          item.files.forEach(file=>{
+
+            fs.unlink(file.filePath,(err)=>{
+              if(err){
+                console.error(err)
+                return
+              }
+            })
+          })
+          
+      })
+
+     
+   
+
+      await Multiplefile.findOneAndDelete(filter)
+      res.status(201).send(`Delete File ${fileTitle} successfuly`)
+      
+      
+
+  } catch (erorr) {
+      res.status(400).send(erorr.message);
+    }
+}
+
+
+const updateSingleFile =async(req,res,next)=>{
+  try{
+    const files =  await Multiplefile.find({title:req.body.title})
+
+    
+    let filesArray = []
+    req.files.forEach(element=>{
+      const file = {
+        fileName: element.originalname,
+        filePath: element.path,
+        fileType: element.mimetype,
+        // fileSize: fileSizeFormater(element.size, 2),
+      };
+      filesArray.push(file);
+  
+    })
+    
+    //  files.forEach(element=>{
+    //     element.title = req.body.title
+    //     element.files = filesArray
+
+    //  })
+    // const multiplefile = new Multiplefile({
+    //   title:req.body.title,
+    //   files:filesArray
+    // })
+    // await files.save()
+
+
+    //  res.status(201).send("File Update successfuly");
+  }catch (erorr) {
+    res.status(400).send(erorr.message);
+  }
+}
 
 const fileSizeFormater = (bytes, decimal) => {
   if (bytes === 0) {
@@ -113,5 +186,5 @@ module.exports = {
   multipleFileUpload,
   getallSingleFiles,
   getallMultipleFiles,
-  deleteFile
+  deleteSingleFile,deleteMultipleFile,updateSingleFile
 };
