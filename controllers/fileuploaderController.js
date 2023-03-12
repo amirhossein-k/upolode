@@ -2,8 +2,10 @@
 
 const SingleFile = require("../models/singlefile");
 const Multiplefile = require("../models/multiplefile");
+const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
-const { send } = require("process");
+const path = require("path");
+
 
 const singleFileUpload = async (req, res, next) => {
   try {
@@ -15,7 +17,7 @@ const singleFileUpload = async (req, res, next) => {
     });
     await file.save();
 
-    res.status(201).send("File Uploaded successfuly");
+    res.status(201).json({success:"File Uploaded successfuly"});
   } catch (error) {
     res.status(400).send(error.message);
   }
@@ -24,6 +26,8 @@ const singleFileUpload = async (req, res, next) => {
 const multipleFileUpload = async (req, res, next) => {
   try {
     let filesArray = [];
+   
+  console.log(req.files)
     req.files.forEach((element) => {
       const file = {
         fileName: element.originalname,
@@ -34,7 +38,8 @@ const multipleFileUpload = async (req, res, next) => {
       filesArray.push(file);
     });
     const multiplefiles = new Multiplefile({
-      title: req.body.title,
+      // title: uuidv4(),
+      title:req.body.title,
       files: filesArray,
     });
 
@@ -48,7 +53,8 @@ const multipleFileUpload = async (req, res, next) => {
 const getallSingleFiles = async (req, res, next) => {
   try {
     const files = await SingleFile.find();
-    res.status(201).send(files);
+    // res.status(201).send(files);
+    res.json(files)
   } catch (erorr) {
     res.status(400).send(erorr.message);
   }

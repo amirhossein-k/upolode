@@ -13,6 +13,7 @@ const router = express.Router();
 
 router.post("/singleFile", upload.single("file"), singleFileUpload);
 router.post("/multipleFiles", upload.array("files"), multipleFileUpload);
+// router.post("/multipleFiles", upload.fields([{name:'files'},{name:'title'}]), multipleFileUpload);
 router.get("/getSingleFiles", getallSingleFiles);
 router.get("/getMultipleFiles", getallMultipleFiles);
 router.delete("/deleteSingleFile", deleteSingleFile);

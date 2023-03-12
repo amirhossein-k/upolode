@@ -12,7 +12,8 @@ const storage = multer.diskStorage({
       null,
       new Date().toString().replace(/:/g, "-") + "-" + file.originalname
     );
-  },
+  }
+  
 });
 
 const filefilter = (req, file, cb) => {
