@@ -44,7 +44,7 @@ const multipleFileUpload = async (req, res, next) => {
     });
 
     await multiplefiles.save();
-    res.status(201).send("Files Uploaded Successfully");
+    res.status(201).json(multiplefiles);
   } catch (error) {
     res.status(400).send(error.message);
   }
@@ -140,9 +140,9 @@ const deleteMultipleFile = async(req,res,next)=>{
 }
 
 
-const updateSingleFile =async(req,res,next)=>{
+const updateMultipleFile =async(req,res,next)=>{
   try{
-    const files =  await Multiplefile.find({title:req.body.title})
+    const files =  await Multiplefile.findOne({title:req.body.title})
 
     
     let filesArray = []
@@ -157,19 +157,46 @@ const updateSingleFile =async(req,res,next)=>{
   
     })
     
-    //  files.forEach(element=>{
-    //     element.title = req.body.title
-    //     element.files = filesArray
+   
+    if(files){
+      files.title=  req.body.title,
+      files.files= filesArray
 
-    //  })
-    // const multiplefile = new Multiplefile({
-    //   title:req.body.title,
-    //   files:filesArray
-    // })
-    // await files.save()
+      const updateFiles =await files.save()
+      res.status(201).json(updateFiles)
+    }
 
+  }catch (erorr) {
+    res.status(400).send(erorr.message);
+  }
+}
 
-    //  res.status(201).send("File Update successfuly");
+const updateSingleFile =async(req,res,next)=>{
+  try{
+    const files =  await Multiplefile.findOne({title:req.body.title})
+
+    
+    let filesArray = []
+    req.files.forEach(element=>{
+      const file = {
+        fileName: element.originalname,
+        filePath: element.path,
+        fileType: element.mimetype,
+        // fileSize: fileSizeFormater(element.size, 2),
+      };
+      filesArray.push(file);
+  
+    })
+    
+   
+    if(files){
+      files.title=  req.body.title,
+      files.files= filesArray
+
+      const updateFiles =await files.save()
+      res.status(201).json(updateFiles)
+    }
+
   }catch (erorr) {
     res.status(400).send(erorr.message);
   }
@@ -192,5 +219,5 @@ module.exports = {
   multipleFileUpload,
   getallSingleFiles,
   getallMultipleFiles,
-  deleteSingleFile,deleteMultipleFile,updateSingleFile
+  deleteSingleFile,deleteMultipleFile,updateMultipleFile,updateSingleFile
 };
