@@ -9,15 +9,20 @@ const path = require("path");
 
 const singleFileUpload = async (req, res, next) => {
   try {
-    const file = new SingleFile({
+  
+    const file ={
       fileName: req.file.originalname,
       filePath: req.file.path,
       fileType: req.file.mimetype,
       fileSize: fileSizeFormater(req.file.size, 2),
-    });
-    await file.save();
+    };
+    const singlefile = new SingleFile({
+      title:req.body.title,
+      file:file
+    })
+    await singlefile.save();
 
-    res.status(201).json({success:"File Uploaded successfuly"});
+    res.status(201).json(singlefile);
   } catch (error) {
     res.status(400).send(error.message);
   }
@@ -27,7 +32,7 @@ const multipleFileUpload = async (req, res, next) => {
   try {
     let filesArray = [];
    
-  console.log(req.files)
+
     req.files.forEach((element) => {
       const file = {
         fileName: element.originalname,
